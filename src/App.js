@@ -1,10 +1,34 @@
 import React, { useState } from 'react';
 import Layout from './components/common/Layout';
+import LoginForm from './components/auth/LoginForm';
+import SignupForm from './components/auth/SignupForm';
+import PlayerNews from './components/dashboard/PlayerNews';
+import LeagueStandings from './components/dashboard/LeagueStandings';
+import JoinLeague from './components/league/JoinLeague';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { useNHLLiveGames } from './hooks/useNHLData';
 
-function App() {
+const AppContent = () => {
   const [currentView, setCurrentView] = useState('dashboard');
+  const [authMode, setAuthMode] = useState('login');
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { games, loading, error, lastUpdated } = useNHLLiveGames();
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return authMode === 'login' ? (
+      <LoginForm onSwitchToSignup={() => setAuthMode('signup')} />
+    ) : (
+      <SignupForm onSwitchToLogin={() => setAuthMode('login')} />
+    );
+  }
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -65,7 +89,10 @@ function App() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div 
+          onClick={() => setCurrentView('lineup')}
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        >
           <div className="text-center">
             <div className="text-3xl mb-2">👥</div>
             <h4 className="font-semibold text-gray-900">My Team</h4>
@@ -73,7 +100,10 @@ function App() {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div 
+          onClick={() => setCurrentView('players')}
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        >
           <div className="text-center">
             <div className="text-3xl mb-2">🔍</div>
             <h4 className="font-semibold text-gray-900">Find Players</h4>
@@ -81,7 +111,10 @@ function App() {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div 
+          onClick={() => setCurrentView('standings')}
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        >
           <div className="text-center">
             <div className="text-3xl mb-2">📊</div>
             <h4 className="font-semibold text-gray-900">Standings</h4>
@@ -89,21 +122,59 @@ function App() {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div 
+          onClick={() => setCurrentView('join-league')}
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        >
           <div className="text-center">
             <div className="text-3xl mb-2">⚔️</div>
-            <h4 className="font-semibold text-gray-900">Matchups</h4>
-            <p className="text-sm text-gray-600">Head-to-head</p>
+            <h4 className="font-semibold text-gray-900">Join League</h4>
+            <p className="text-sm text-gray-600">Find new leagues</p>
           </div>
         </div>
+      </div>
+
+      {/* Dashboard Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <PlayerNews />
+        <LeagueStandings />
       </div>
     </div>
   );
 
+  const renderContent = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return renderDashboard();
+      case 'players':
+        return <div className="text-center py-8 text-gray-500">Player Search component coming soon!</div>;
+      case 'lineup':
+        return <div className="text-center py-8 text-gray-500">Lineup Management component coming soon!</div>;
+      case 'standings':
+        return <LeagueStandings />;
+      case 'join-league':
+        return <JoinLeague />;
+      default:
+        return renderDashboard();
+    }
+  };
+
   return (
-    <Layout title="Dashboard">
-      {currentView === 'dashboard' && renderDashboard()}
+    <Layout 
+      title={currentView === 'dashboard' ? 'Dashboard' : currentView.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+    >
+      {renderContent()}
     </Layout>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
