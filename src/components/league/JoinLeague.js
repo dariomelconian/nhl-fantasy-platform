@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const JoinLeague = () => {
+const JoinLeague = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('public');
   const [publicLeagues, setPublicLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -367,7 +367,10 @@ const JoinLeague = () => {
             <p className="text-gray-600 mb-6">
               Set up a custom fantasy hockey league with your own rules and invite friends.
             </p>
-            <button className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium">
+            <button 
+              onClick={() => onNavigate?.('create-league')}
+              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+            >
               Create New League
             </button>
           </div>

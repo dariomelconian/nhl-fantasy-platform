@@ -12,6 +12,7 @@ const Layout = ({ children, title = "NHL Fantasy Platform", currentView, setCurr
     { name: 'My Team', id: 'lineup', icon: '👥' },
     { name: 'Standings', id: 'standings', icon: '📊' },
     { name: 'Join League', id: 'join-league', icon: '⚔️' },
+    { name: 'Create League', id: 'create-league', icon: '➕' },
   ];
 
   const handleNavClick = (viewId) => {

@@ -5,6 +5,9 @@ import SignupForm from './components/auth/SignupForm';
 import PlayerNews from './components/dashboard/PlayerNews';
 import LeagueStandings from './components/dashboard/LeagueStandings';
 import JoinLeague from './components/league/JoinLeague';
+import CreateLeague from './components/league/CreateLeague';
+import PlayerSearch from './components/player/PlayerSearch';
+import LineupManager from './components/lineup/LineupManager';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useNHLLiveGames } from './hooks/useNHLData';
 
@@ -147,13 +150,17 @@ const AppContent = () => {
       case 'dashboard':
         return renderDashboard();
       case 'players':
-        return <div className="text-center py-8 text-gray-500">Player Search component coming soon!</div>;
+        return <PlayerSearch />;
       case 'lineup':
-        return <div className="text-center py-8 text-gray-500">Lineup Management component coming soon!</div>;
+        return <LineupManager />;
       case 'standings':
         return <LeagueStandings />;
       case 'join-league':
-        return <JoinLeague />;
+        return <JoinLeague onNavigate={setCurrentView} />;
+      case 'create-league':
+        return <CreateLeague />;
+      case 'profile':
+        return <div className="text-center py-8 text-gray-500">Profile Settings coming soon!</div>;
       default:
         return renderDashboard();
     }
