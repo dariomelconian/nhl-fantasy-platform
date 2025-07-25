@@ -17,6 +17,7 @@ import theme, { cssVariables } from './styles/theme';
 const AppContent = () => {
   const [currentView, setCurrentView] = useState('landing');
   const [authMode, setAuthMode] = useState('login');
+  const [showLanding, setShowLanding] = useState(true);
   const { isAuthenticated, loading: authLoading } = useAuth(); 
   const { games, loading, error, lastUpdated } = useNHLLiveGames();
 
@@ -33,9 +34,12 @@ const AppContent = () => {
     );
   }
 
-  // Show landing page if not authenticated
-  if (!isAuthenticated && currentView === 'landing') {
-    return <LandingPage onGetStarted={() => setAuthMode('login')} />;
+  // Always show landing page first for non-authenticated users
+  if (!isAuthenticated && showLanding) {
+    return <LandingPage onGetStarted={() => {
+      setShowLanding(false);
+      setAuthMode('login');
+    }} />;
   }
 
   if (!isAuthenticated) {
@@ -44,12 +48,12 @@ const AppContent = () => {
         {authMode === 'login' ? (
           <LoginForm 
             onSwitchToSignup={() => setAuthMode('signup')}
-            onBack={() => setCurrentView('landing')}
+            onBack={() => setShowLanding(true)}
           />
         ) : (
           <SignupForm 
             onSwitchToLogin={() => setAuthMode('login')}
-            onBack={() => setCurrentView('landing')}
+            onBack={() => setShowLanding(true)}
           />
         )}
       </Background>

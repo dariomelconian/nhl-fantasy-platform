@@ -116,6 +116,16 @@ const Layout = ({ children, title = "NHL Fantasy Platform", currentView, setCurr
                       >
                         Sign out
                       </button>
+                      <button
+                        onClick={() => {
+                          // Clear all auth data to force landing page
+                          localStorage.clear();
+                          window.location.reload();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 border-t"
+                      >
+                        🏒 View Landing Page
+                      </button>
                     </div>
                   </div>
                 )}
