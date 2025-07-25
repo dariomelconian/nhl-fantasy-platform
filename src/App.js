@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Layout from './components/common/Layout';
+import Background from './components/common/Background';
+import LandingPage from './components/landing/LandingPage'; 
 import LoginForm from './components/auth/LoginForm';
 import SignupForm from './components/auth/SignupForm';
 import PlayerNews from './components/dashboard/PlayerNews';
@@ -10,26 +12,47 @@ import PlayerSearch from './components/player/PlayerSearch';
 import LineupManager from './components/lineup/LineupManager';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useNHLLiveGames } from './hooks/useNHLData';
+import theme, { cssVariables } from './styles/theme';
 
 const AppContent = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('landing');
   const [authMode, setAuthMode] = useState('login');
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth(); 
   const { games, loading, error, lastUpdated } = useNHLLiveGames();
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <Background variant="ice">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading NHL Fantasy Platform...</p>
+          </div>
+        </div>
+      </Background>
     );
   }
 
+  // Show landing page if not authenticated
+  if (!isAuthenticated && currentView === 'landing') {
+    return <LandingPage onGetStarted={() => setAuthMode('login')} />;
+  }
+
   if (!isAuthenticated) {
-    return authMode === 'login' ? (
-      <LoginForm onSwitchToSignup={() => setAuthMode('signup')} />
-    ) : (
-      <SignupForm onSwitchToLogin={() => setAuthMode('login')} />
+    return (
+      <Background variant="ice">
+        {authMode === 'login' ? (
+          <LoginForm 
+            onSwitchToSignup={() => setAuthMode('signup')}
+            onBack={() => setCurrentView('landing')}
+          />
+        ) : (
+          <SignupForm 
+            onSwitchToLogin={() => setAuthMode('login')}
+            onBack={() => setCurrentView('landing')}
+          />
+        )}
+      </Background>
     );
   }
 
@@ -167,17 +190,30 @@ const AppContent = () => {
   };
 
   return (
-    <Layout 
-      title={currentView === 'dashboard' ? 'Dashboard' : currentView.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      currentView={currentView}
-      setCurrentView={setCurrentView}
-    >
-      {renderContent()}
-    </Layout>
+    <Background variant="rink">
+      <Layout 
+        title={currentView === 'dashboard' ? 'Dashboard' : currentView.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+      >
+        {renderContent()}
+      </Layout>
+    </Background>
   );
 };
 
 function App() {
+  // Inject CSS variables for theming
+  React.useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = cssVariables;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <AppContent />
